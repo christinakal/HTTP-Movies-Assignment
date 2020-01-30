@@ -1,43 +1,41 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 
-const UpdateMovie = props => {
-  const [movie, setMovie] = useState({
-    id: "",
+const AddMovie = props => {
+  const [newMovie, setNewMovie] = useState({
     title: "",
     director: "",
     metascore: "",
     stars: ""
   });
 
-  useEffect(() => {
-    const movieToEdit = props.movies.find(
-      i => `${i.id}` === props.match.params.id
-    );
-    if (movieToEdit) {
-      setMovie(movieToEdit);
-    }
-  }, [props.movies, props.match.params.id]);
-
   const handleChanges = e => {
-    setMovie({
-      ...movie,
+    setNewMovie({
+      ...newMovie,
       [e.target.name]: e.target.value
     });
   };
 
   const handleStars = e => {
-    setMovie({
-      ...movie,
-      stars: e.target.value.split(",")
-    });
+    if (e.target.value.includes(",")) {
+      setNewMovie({
+        ...newMovie,
+        [e.target.name]: e.target.value.split(",")
+      });
+    } else {
+      setNewMovie({
+        ...newMovie,
+        [e.target.name]: e.target.value.split(" ")
+      });
+    }
   };
 
   const handleSubmit = e => {
     e.preventDefault();
     axios
-      .put(`http://localhost:5000/api/movies/${movie.id}`, movie)
+      .post("http://localhost:5000/api/movies", newMovie)
       .then(response => {
+        alert("Movie added!");
         props.history.push("/");
       })
       .catch(err => console.log(err));
@@ -47,28 +45,28 @@ const UpdateMovie = props => {
     <form onSubmit={handleSubmit}>
       <label htmlFor="title">Title: </label>
       <input
-        value={movie.title}
+        value={newMovie.title}
         name="title"
         type="text"
         onChange={handleChanges}
       />
       <label htmlFor="director">Director: </label>
       <input
-        value={movie.director}
+        value={newMovie.director}
         name="director"
         type="text"
         onChange={handleChanges}
       />
       <label htmlFor="metascore">Metascore: </label>
       <input
-        value={movie.metascore}
+        value={newMovie.metascore}
         name="metascore"
         type="text"
         onChange={handleChanges}
       />
       <label htmlFor="stars">Stars: </label>
       <input
-        value={movie.stars}
+        value={newMovie.stars}
         name="stars"
         type="text"
         onChange={handleStars}
@@ -78,4 +76,4 @@ const UpdateMovie = props => {
   );
 };
 
-export default UpdateMovie;
+export default AddMovie;
